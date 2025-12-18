@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-bg: #0b1120;
+  --card-bg: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --primary: #0078d4;
+  --report-bg: #16213e; /* Azul marinho executivo */
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--text-main);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+/* --- REGRAS DE IMPRESSÃO (ESTRITAS) --- */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0 !important;
+  }
+
+  /* Force o fundo marinho em toda a página do PDF */
+  html, body {
+    background-color: var(--report-bg) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: visible !important;
+  }
+
+  /* Ocultar tudo que não é o relatório e sua estrutura de impressão */
+  body > *:not(#printable-report-wrapper) {
+    display: none !important;
+  }
+  #root, .no-print {
+    display: none !important;
+  }
+
+  /* Container principal no PDF */
+  #printable-report-wrapper {
+    background-color: var(--report-bg) !important;
+    position: static !important;
+    width: 100% !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* A folha do relatório */
+  #printable-report {
+    display: block !important;
+    width: 210mm !important; /* Largura exata A4 */
+    min-height: 297mm !important;
+    padding: 20mm !important; /* Margem interna executiva */
+    background-color: var(--report-bg) !important;
+    border-radius: 0 !important; /* ZERO BORDAS NO PDF */
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Preservar cartões de grupos - estes podem ser arredondados */
+  .report-group-card {
+    background-color: #0f172a !important;
+    border-radius: 14px !important;
+    padding: 22px !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .member-tag {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    padding: 5px 12px !important;
+    border-radius: 8px !important;
+    font-size: 10px !important;
+    display: inline-block !important;
+    margin-right: 8px !important;
+    margin-bottom: 8px !important;
+  }
+}
+
+/* --- ESTILOS DE TELA (PREVIEW) --- */
+.preview-overlay {
+  background-color: #0b1120;
+  z-index: 100;
+}
+
+.report-paper {
+  background-color: var(--report-bg);
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  color: white;
+  border-radius: 4px; /* Apenas na tela para estética */
+}
+
+.report-group-card {
+  background-color: #0f172a;
+  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.member-tag {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  display: inline-block;
+}

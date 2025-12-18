@@ -1,0 +1,5 @@
+{
+  "name": "SharePoint Permissions Manager",
+  "description": "A user-friendly graphical interface to manage and apply Entra ID group permissions to SharePoint folders, with AI-powered PowerShell script generation.",
+  "requestFramePermissions": []
+}
