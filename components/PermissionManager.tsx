@@ -102,20 +102,22 @@ const SecurityReports = () => {
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: #0f172a;
             color: #f1f5f9;
-            padding: 40px 20px;
+            padding: 0;
+            margin: 0;
             line-height: 1.6;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
             background: rgba(30, 41, 59, 0.6);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: visible;
         }
         
         .header {
@@ -214,7 +216,7 @@ const SecurityReports = () => {
         }
         
         .content {
-            padding: 40px;
+            padding: 30px 40px;
         }
         
         .section-title {
@@ -456,19 +458,27 @@ const SecurityReports = () => {
             
             const element = document.querySelector('.container');
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: 0,
                 filename: 'Relatorio_Auditoria_${site.displayName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 0.95 },
                 html2canvas: { 
-                    scale: 2,
+                    scale: 1.5,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#0f172a'
+                    backgroundColor: '#0f172a',
+                    windowWidth: 1200,
+                    scrollY: -window.scrollY
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     format: 'a4', 
-                    orientation: 'portrait' 
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.folder-card',
+                    after: '.footer'
                 }
             };
             
@@ -532,8 +542,11 @@ const SecurityReports = () => {
                     <div class="stat-label">Grupos Configurados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">${reportData.reduce((sum, item) => sum + item.groups.reduce((gSum: number, g: any) => gSum + g.members.length, 0), 0)}</div>
-                    <div class="stat-label">Total de Membros</div>
+                    <div class="stat-value">${(() => {
+                        const allMembers = reportData.flatMap(item => item.groups.flatMap(g => g.members.map(m => m.id)));
+                        return new Set(allMembers).size;
+                    })()}</div>
+                    <div class="stat-label">Total de Membros Únicos</div>
                 </div>
             </div>
             
