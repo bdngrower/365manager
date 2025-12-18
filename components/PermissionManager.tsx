@@ -74,6 +74,444 @@ const SecurityReports = () => {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState('');
 
+    const exportToPDF = () => {
+        if (!site || !drive || reportData.length === 0) return;
+
+        const currentDate = new Date().toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const htmlContent = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Auditoria - ${site.displayName}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            padding: 40px;
+            border-bottom: 3px solid #0078d4;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        
+        .title-section h1 {
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .title-section p {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .date-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: right;
+            backdrop-filter: blur(10px);
+        }
+        
+        .date-badge .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        
+        .date-badge .value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .metadata-item .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        .metadata-item .value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            color: #0078d4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #0078d4;
+            border-radius: 2px;
+        }
+        
+        .folder-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: transform 0.2s;
+        }
+        
+        .folder-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 120, 212, 0.5);
+        }
+        
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .folder-icon {
+            font-size: 24px;
+        }
+        
+        .folder-path {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        
+        .folder-name {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0078d4;
+            text-transform: uppercase;
+        }
+        
+        .group-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .group-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .group-icon {
+            font-size: 18px;
+        }
+        
+        .role-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .role-badge.write {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+        
+        .role-badge.read {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.4);
+        }
+        
+        .members-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .member-tag {
+            background: rgba(241, 245, 249, 0.1);
+            color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(241, 245, 249, 0.2);
+        }
+        
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 24px 40px;
+            text-align: center;
+            border-top: 2px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .footer-text {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 120, 212, 0.1);
+            border: 1px solid rgba(0, 120, 212, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0078d4;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .folder-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="logo-section">
+                    <div class="logo">🛡️</div>
+                    <div class="title-section">
+                        <h1>Relatório de Auditoria</h1>
+                        <p>Governança de Grupos e Membros</p>
+                    </div>
+                </div>
+                <div class="date-badge">
+                    <div class="label">Data de Geração</div>
+                    <div class="value">${currentDate}</div>
+                </div>
+            </div>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <div class="label">Site SharePoint</div>
+                    <div class="value">${site.displayName}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="label">Biblioteca</div>
+                    <div class="value">${drive.name}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="label">Status</div>
+                    <div class="value">✓ Completo</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-value">${reportData.length}</div>
+                    <div class="stat-label">Pastas Auditadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${reportData.reduce((sum, item) => sum + item.groups.length, 0)}</div>
+                    <div class="stat-label">Grupos Configurados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${reportData.reduce((sum, item) => sum + item.groups.reduce((gSum: number, g: any) => gSum + g.members.length, 0), 0)}</div>
+                    <div class="stat-label">Total de Membros</div>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                📂 Estrutura de Permissões
+            </div>
+            
+            ${reportData.map(item => `
+                <div class="folder-card">
+                    <div class="folder-header">
+                        <div>
+                            <div class="folder-path">${item.parent}</div>
+                            <div class="folder-name">📁 ${item.folder}</div>
+                        </div>
+                    </div>
+                    
+                    ${item.groups.map((group: any) => {
+                        const isWrite = group.role.toLowerCase().includes('write') || group.role.toLowerCase().includes('edit');
+                        return `
+                        <div class="group-card">
+                            <div class="group-header">
+                                <div class="group-name">
+                                    <span class="group-icon">👥</span>
+                                    ${group.name}
+                                </div>
+                                <div class="role-badge ${isWrite ? 'write' : 'read'}">
+                                    ${isWrite ? 'EDITAR' : 'LEITURA'}
+                                </div>
+                            </div>
+                            <div class="members-container">
+                                ${group.members.map((member: any) => `
+                                    <span class="member-tag">${member.displayName}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                🔒 Documento Confidencial - Este relatório contém informações sensíveis sobre a estrutura de segurança do SharePoint.<br>
+                Gerado por Governance Pro v3 - SharePoint Security Center
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+        `;
+
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+        }
+    };
+
     const generateReport = async () => {
         if (!site || !drive) return;
         setLoading(true);
@@ -166,7 +604,7 @@ const SecurityReports = () => {
                         {loading ? <LoadingIcon className="w-4 h-4" /> : 'GERAR AUDITORIA'}
                     </button>
                     {reportData.length > 0 && (
-                        <button onClick={() => window.print()} className="px-6 py-4 bg-emerald-600 text-white rounded-2xl text-[11px] font-black shadow-xl active:scale-95 transition-all flex items-center gap-2">
+                        <button onClick={exportToPDF} className="px-6 py-4 bg-emerald-600 text-white rounded-2xl text-[11px] font-black shadow-xl active:scale-95 transition-all flex items-center gap-2">
                              <DocumentIcon className="w-4 h-4" /> EXPORTAR PDF
                         </button>
                     )}
