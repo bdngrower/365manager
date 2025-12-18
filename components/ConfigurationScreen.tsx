@@ -21,8 +21,8 @@ const ConfigurationScreen: React.FC<ConfigurationScreenProps> = ({ onConfigSave 
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-app p-4">
-            <div className="w-full max-w-3xl p-10 space-y-8 bg-card rounded-3xl shadow-2xl border border-slate-700">
+        <div className="flex items-center justify-center min-h-screen p-4" style={{backgroundColor: '#0b1120'}}>
+            <div className="w-full max-w-3xl p-10 space-y-8 rounded-3xl shadow-2xl border border-slate-700" style={{backgroundColor: '#1e293b'}}>
                 <div className="flex flex-col items-center">
                     <LogoIcon className="w-20 h-20 text-primary mb-4" />
                     <h1 className="text-4xl font-black text-center text-slate-100 leading-tight tracking-tight">

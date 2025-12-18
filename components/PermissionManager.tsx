@@ -970,6 +970,7 @@ const SingleApplier = ({ groups }: { groups: Group[] }) => {
     const [selectedGroups, setSelectedGroups] = useState<Array<{ group: Group, role: PermissionRole }>>([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const toggleGroup = (g: Group) => {
         if (selectedGroups.find(x => x.group.id === g.id)) {
@@ -978,6 +979,11 @@ const SingleApplier = ({ groups }: { groups: Group[] }) => {
             const role = g.displayName.toUpperCase().includes('RW') ? PermissionRole.WRITE : PermissionRole.READ;
             setSelectedGroups([...selectedGroups, { group: g, role }]);
         }
+    };
+
+    const handleConfirm = () => {
+        if (!folder || selectedGroups.length === 0) return;
+        setShowConfirm(true);
     };
 
     const handleApply = async () => {
@@ -993,7 +999,59 @@ const SingleApplier = ({ groups }: { groups: Group[] }) => {
         <div className="text-center py-20 animate-slide-up">
             <div className="bg-emerald-500/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"><SuccessIcon className="w-10 h-10 text-emerald-500" /></div>
             <h2 className="text-xl font-black mb-6 uppercase">Segurança Aplicada!</h2>
-            <button onClick={() => { setSuccess(false); setFolder(null); setSelectedGroups([]); }} className="px-8 py-3 bg-primary text-white rounded-xl font-black text-xs">NOVA OPERAÇÃO</button>
+            <button onClick={() => { setSuccess(false); setFolder(null); setSelectedGroups([]); setShowConfirm(false); }} className="px-8 py-3 bg-primary text-white rounded-xl font-black text-xs">NOVA OPERAÇÃO</button>
+        </div>
+    );
+
+    if (showConfirm) return (
+        <div className="animate-slide-up space-y-6">
+            <div className="bg-amber-900/20 p-6 rounded-2xl border border-amber-700/50">
+                <h3 className="text-lg font-black text-amber-400 mb-4 flex items-center gap-2">
+                    <ShieldErrorIcon className="w-6 h-6" />
+                    CONFIRMAR OPERAÇÃO
+                </h3>
+                <p className="text-sm text-amber-300/90 mb-4">Você está prestes a aplicar as seguintes permissões:</p>
+            </div>
+            
+            <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
+                <div className="space-y-4">
+                    <div>
+                        <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Pasta Alvo</p>
+                        <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex items-center gap-3">
+                            <FolderIcon className="w-5 h-5 text-yellow-500" />
+                            <span className="font-bold text-slate-200">{folder?.name}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Grupos que terão acesso ({selectedGroups.length})</p>
+                        <div className="space-y-2">
+                            {selectedGroups.map(sg => (
+                                <div key={sg.group.id} className="bg-slate-900/50 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
+                                    <span className="text-sm font-bold text-slate-300">{sg.group.displayName}</span>
+                                    <RoleBadge role={sg.role === PermissionRole.WRITE ? 'write' : 'read'} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex gap-4">
+                <button 
+                    onClick={() => setShowConfirm(false)} 
+                    className="flex-1 py-4 bg-slate-700 text-white rounded-2xl font-black text-sm hover:bg-slate-600 transition-all"
+                >
+                    CANCELAR
+                </button>
+                <button 
+                    onClick={handleApply} 
+                    disabled={loading}
+                    className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                    {loading ? <LoadingIcon className="w-5 h-5" /> : 'CONFIRMAR E APLICAR'}
+                </button>
+            </div>
         </div>
     );
 
@@ -1016,8 +1074,8 @@ const SingleApplier = ({ groups }: { groups: Group[] }) => {
                 </div>
                 <div className="pt-4 border-t border-slate-800">
                     <p className="text-[10px] text-slate-500 uppercase font-black mb-2">Pasta Alvo: <span className="text-slate-200">{folder?.name || 'Selecione no navegador'}</span></p>
-                    <button onClick={handleApply} disabled={!folder || selectedGroups.length === 0 || loading} className="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all">
-                        {loading ? <LoadingIcon className="w-5 h-5" /> : 'APLICAR ISOLAMENTO (EDITAR)'}
+                    <button onClick={handleConfirm} disabled={!folder || selectedGroups.length === 0} className="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all disabled:opacity-50">
+                        REVISAR E CONFIRMAR
                     </button>
                 </div>
             </div>
@@ -1031,6 +1089,7 @@ const BulkApplier = ({ groups }: { groups: Group[] }) => {
     const [parentFolder, setParentFolder] = useState<DriveItem | null>(null);
     const [children, setChildren] = useState<DriveItem[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedGroups, setSelectedGroups] = useState<Array<{ group: Group, role: PermissionRole }>>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -1039,22 +1098,31 @@ const BulkApplier = ({ groups }: { groups: Group[] }) => {
         }
     }, [parentFolder, site, drive]);
 
+    const toggleGroup = (g: Group) => {
+        if (selectedGroups.find(x => x.group.id === g.id)) {
+            setSelectedGroups(selectedGroups.filter(x => x.group.id !== g.id));
+        } else {
+            const role = g.displayName.toUpperCase().includes('RW') ? PermissionRole.WRITE : PermissionRole.READ;
+            setSelectedGroups([...selectedGroups, { group: g, role }]);
+        }
+    };
+
     const handleApplyBulk = async () => {
+        if (selectedGroups.length === 0) {
+            alert('Selecione pelo menos um grupo!');
+            return;
+        }
         setLoading(true);
         try {
             for (const id of selectedIds) {
-                const folder = children.find(c => c.id === id);
-                if (!folder) continue;
-                const matches = groups.filter(g => g.displayName.toLowerCase().includes(folder.name.toLowerCase()));
-                if (matches.length > 0) {
-                    await GraphService.applyMultiplePermissions(site!.id, drive!.id, folder.id, matches.map(m => ({
-                        groupId: m.id,
-                        role: m.displayName.toUpperCase().includes('RW') ? PermissionRole.WRITE : PermissionRole.READ
-                    })));
-                }
+                await GraphService.applyMultiplePermissions(site!.id, drive!.id, id, selectedGroups.map(sg => ({
+                    groupId: sg.group.id,
+                    role: sg.role
+                })));
             }
             alert('Vínculo em massa finalizado.');
             setSelectedIds([]);
+            setSelectedGroups([]);
         } finally { setLoading(false); }
     };
 
@@ -1063,30 +1131,50 @@ const BulkApplier = ({ groups }: { groups: Group[] }) => {
             {!site ? <SiteLoader onSelect={setSite} /> : !drive ? <DriveLoader siteId={site.id} onSelect={setDrive} /> : !parentFolder ? (
                 <FolderBrowser siteId={site.id} driveId={drive.id} onSelect={setParentFolder} />
             ) : (
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
-                        <div className="flex items-center gap-3">
-                            <FolderIcon className="w-5 h-5 text-yellow-500" />
-                            <p className="font-black text-sm text-slate-200">Pastas em <span className="text-primary">{parentFolder.name}</span></p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex justify-between items-center bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
+                            <div className="flex items-center gap-3">
+                                <FolderIcon className="w-5 h-5 text-yellow-500" />
+                                <p className="font-black text-sm text-slate-200">Pastas em <span className="text-primary">{parentFolder.name}</span></p>
+                            </div>
+                            <button onClick={() => setParentFolder(null)} className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-all">TROCAR DIRETÓRIO</button>
                         </div>
-                        <button onClick={() => setParentFolder(null)} className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-all">TROCAR DIRETÓRIO</button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {children.map(c => {
+                                const isSel = selectedIds.includes(c.id);
+                                return (
+                                    <button key={c.id} onClick={() => setSelectedIds(prev => isSel ? prev.filter(x => x !== c.id) : [...prev, c.id])} className={`p-4 rounded-2xl border text-left flex justify-between items-center transition-all ${isSel ? 'bg-primary/20 border-primary text-primary shadow-lg scale-[1.02]' : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:border-slate-600'}`}>
+                                        <span className="text-xs font-bold truncate max-w-[80%]">{c.name}</span>
+                                        {isSel && <CheckIcon className="w-4 h-4" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {children.map(c => {
-                            const isSel = selectedIds.includes(c.id);
-                            return (
-                                <button key={c.id} onClick={() => setSelectedIds(prev => isSel ? prev.filter(x => x !== c.id) : [...prev, c.id])} className={`p-4 rounded-2xl border text-left flex justify-between items-center transition-all ${isSel ? 'bg-primary/20 border-primary text-primary shadow-lg scale-[1.02]' : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:border-slate-600'}`}>
-                                    <span className="text-xs font-bold truncate max-w-[80%]">{c.name}</span>
-                                    {isSel && <CheckIcon className="w-4 h-4" />}
-                                </button>
-                            );
-                        })}
-                    </div>
-                    <div className="bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-left"><p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Alvos selecionados: <span className="text-primary">{selectedIds.length}</span></p></div>
-                        <button onClick={handleApplyBulk} disabled={selectedIds.length === 0 || loading} className="px-10 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all disabled:opacity-20 flex items-center gap-3">
-                            {loading ? <LoadingIcon className="w-5 h-5" /> : 'APLICAR VÍNCULOS (EDITAR)'}
-                        </button>
+                    
+                    <div className="space-y-6">
+                        <div className="bg-slate-800/20 p-6 rounded-[2.5rem] border border-slate-800/50 flex flex-col gap-6">
+                            <h3 className="text-[10px] font-black uppercase text-primary tracking-widest">Selecionar Grupos _GS_</h3>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2 max-h-[400px]">
+                                {groups.map(g => (
+                                    <button key={g.id} onClick={() => toggleGroup(g)} className={`w-full text-left p-3 rounded-xl border text-[11px] font-bold flex justify-between items-center transition-all ${selectedGroups.find(x => x.group.id === g.id) ? 'bg-primary border-primary text-white shadow-lg shadow-primary/10' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}>
+                                        {g.displayName}
+                                        <RoleBadge role={g.displayName.toUpperCase().includes('RW') ? 'write' : 'read'} />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl space-y-4">
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Pastas: <span className="text-primary">{selectedIds.length}</span></p>
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Grupos: <span className="text-primary">{selectedGroups.length}</span></p>
+                            </div>
+                            <button onClick={handleApplyBulk} disabled={selectedIds.length === 0 || selectedGroups.length === 0 || loading} className="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all disabled:opacity-20 flex items-center justify-center gap-3">
+                                {loading ? <LoadingIcon className="w-5 h-5" /> : 'APLICAR VÍNCULOS'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
