@@ -391,6 +391,37 @@ const SecurityReports = () => {
             font-weight: 700;
         }
         
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 120, 212, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 120, 212, 0.5);
+        }
+        
+        .print-button:active {
+            transform: translateY(0);
+        }
+        
         @media print {
             body {
                 background: white;
@@ -405,10 +436,17 @@ const SecurityReports = () => {
             .folder-card:hover {
                 transform: none;
             }
+            
+            .print-button {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="print-button" onclick="window.print()">
+        📄 Salvar como PDF
+    </button>
     <div class="container">
         <div class="header">
             <div class="header-top">
