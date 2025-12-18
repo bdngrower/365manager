@@ -101,7 +101,7 @@ const SecurityReports = () => {
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
             color: #f1f5f9;
             padding: 20px;
             margin: 0;
@@ -111,7 +111,7 @@ const SecurityReports = () => {
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(46, 74, 111, 0.5);
             border-radius: 24px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
