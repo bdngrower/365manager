@@ -73,7 +73,7 @@ const App: React.FC = () => {
                 <LogoIcon className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight">Governance Pro</h1>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight">Zim 365 Manager</h1>
                 <p className="text-xs text-gray-400 dark:text-slate-400 font-medium">SharePoint Security Center</p>
               </div>
             </div>

@@ -585,7 +585,7 @@ const SecurityReports = () => {
         <div class="footer">
             <p class="footer-text">
                 🔒 Documento Confidencial - Este relatório contém informações sensíveis sobre a estrutura de segurança do SharePoint.<br>
-                Gerado por Governance Pro v3 - SharePoint Security Center
+                Gerado por Zim 365 Manager - SharePoint Security Center
             </p>
         </div>
     </div>
@@ -1309,7 +1309,7 @@ const Dashboard = ({ groups }: { groups: Group[] }) => {
             </div>
             <div className="bg-slate-800/20 p-12 rounded-[3rem] border border-slate-800 flex flex-col items-center">
                 <SparklesIcon className="w-12 h-12 text-primary mb-6" />
-                <h3 className="text-2xl font-black mb-2 tracking-tight text-slate-100">Governance Pro v3</h3>
+                <h3 className="text-2xl font-black mb-2 tracking-tight text-slate-100">Zim 365 Manager</h3>
                 <p className="text-slate-400 max-w-md text-sm leading-relaxed italic">Segurança delegada para Microsoft SharePoint & OneDrive.</p>
             </div>
         </div>
