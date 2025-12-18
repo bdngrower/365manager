@@ -92,6 +92,7 @@ const SecurityReports = () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Auditoria - ${site.displayName}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -442,9 +443,47 @@ const SecurityReports = () => {
             }
         }
     </style>
+    <script>
+        function generatePDF() {
+            const button = document.querySelector('.print-button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Gerando PDF...';
+            button.disabled = true;
+            
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: 'Relatorio_Auditoria_${site.displayName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#0f172a'
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }).catch((error) => {
+                console.error('Erro ao gerar PDF:', error);
+                button.innerHTML = '❌ Erro - Tente novamente';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            });
+        }
+    </script>
 </head>
 <body>
-    <button class="print-button" onclick="window.print()">
+    <button class="print-button" onclick="generatePDF()">
         📄 Salvar como PDF
     </button>
     <div class="container">
