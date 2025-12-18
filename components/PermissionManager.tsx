@@ -92,7 +92,6 @@ const SecurityReports = () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Auditoria - ${site.displayName}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -102,22 +101,20 @@ const SecurityReports = () => {
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #f1f5f9;
-            padding: 0;
+            padding: 20px;
             margin: 0;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         .container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0;
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 0;
-            box-shadow: none;
-            overflow: visible;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
         }
         
         .header {
@@ -216,7 +213,7 @@ const SecurityReports = () => {
         }
         
         .content {
-            padding: 30px 40px;
+            padding: 40px;
         }
         
         .section-title {
@@ -430,74 +427,75 @@ const SecurityReports = () => {
         }
         
         @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
             body {
-                background: white;
-                padding: 0;
-            }
-            
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-            }
-            
-            .folder-card:hover {
-                transform: none;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             
             .print-button {
                 display: none !important;
             }
+            
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%) !important;
+                padding: 30px !important;
+                page-break-after: avoid !important;
+            }
+            
+            .content {
+                padding: 20px 30px !important;
+            }
+            
+            .stats-bar {
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+            
+            .section-title {
+                page-break-after: avoid !important;
+            }
+            
+            .folder-card {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 20px !important;
+                background: rgba(15, 23, 42, 0.95) !important;
+            }
+            
+            .group-card {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                background: rgba(30, 41, 59, 0.9) !important;
+            }
+            
+            .footer {
+                page-break-before: avoid !important;
+                background: rgba(15, 23, 42, 0.95) !important;
+            }
+            
+            .folder-card:hover {
+                transform: none !important;
+            }
         }
     </style>
-    <script>
-        function generatePDF() {
-            const button = document.querySelector('.print-button');
-            const originalText = button.innerHTML;
-            button.innerHTML = '⏳ Gerando PDF...';
-            button.disabled = true;
-            
-            const element = document.querySelector('.container');
-            const opt = {
-                margin: 0,
-                filename: 'Relatorio_Auditoria_${site.displayName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf',
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { 
-                    scale: 1.5,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#0f172a',
-                    windowWidth: 1200,
-                    scrollY: -window.scrollY
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    compress: true
-                },
-                pagebreak: { 
-                    mode: ['avoid-all', 'css', 'legacy'],
-                    before: '.folder-card',
-                    after: '.footer'
-                }
-            };
-            
-            html2pdf().set(opt).from(element).save().then(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }).catch((error) => {
-                console.error('Erro ao gerar PDF:', error);
-                button.innerHTML = '❌ Erro - Tente novamente';
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            });
-        }
-    </script>
 </head>
 <body>
-    <button class="print-button" onclick="generatePDF()">
+    <button class="print-button" onclick="window.print()">
         📄 Salvar como PDF
     </button>
     <div class="container">
