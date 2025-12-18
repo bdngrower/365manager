@@ -244,6 +244,8 @@ const SecurityReports = () => {
             padding: 24px;
             margin-bottom: 24px;
             transition: transform 0.2s;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         
         .folder-card:hover {
@@ -283,16 +285,18 @@ const SecurityReports = () => {
             background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(100, 116, 139, 0.3);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         
         .group-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(100, 116, 139, 0.3);
         }
         
@@ -551,12 +555,8 @@ const SecurityReports = () => {
                         return `
                         <div class="group-card">
                             <div class="group-header">
-                                <div class="group-name">
-                                    <span class="group-icon">👥</span>
-                                    ${group.name}
-                                </div>
                                 <div class="role-badge ${isWrite ? 'write' : 'read'}">
-                                    ${isWrite ? 'EDITAR' : 'LEITURA'}
+                                    ${isWrite ? '✏️ EDITAR' : '👁️ LEITURA'}
                                 </div>
                             </div>
                             <div class="members-container">
