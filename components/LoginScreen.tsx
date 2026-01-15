@@ -16,10 +16,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, isLoading, error, on
         <div className="flex flex-col items-center">
           <LogoIcon className="w-20 h-20 text-primary mb-4" />
           <h1 className="text-4xl font-black text-center text-slate-100 leading-tight tracking-tight">
-            Zim 365 Manager
+            Z35 Manager
           </h1>
           <h2 className="mt-2 text-lg font-bold text-primary">
-            SharePoint Security Center
+            Diagnostique. Padronize. Execute
           </h2>
           <p className="mt-3 text-sm text-center text-slate-400">
             Entre para gerenciar permissões do SharePoint
